@@ -10,34 +10,26 @@ Select AU for Automatic Update (this is the default method).
 **Patch Type:**
 Select SQL (this is the patch type we are applying).
 
-**Patch Week:
-**
+**Patch Week:**
 0: This is the week of the 2nd Tuesday of every month. Typically used for DEV/TEST devices only.
-
 1: This is the production patch week, starting from Day 0 to Day 6 (the week immediately following the 2nd Tuesday of the month).
-
 2: This is the production patch week, starting from Day 7 to Day 12 (the week after the first production patch week).
 
-**Maintenance Day:
-**
+**Maintenance Day:**
 Select the day of the week when the patching is scheduled to take place.
-
 For DEV/TEST patch weeks (week 0), you can’t select Monday or Tuesday.
-
 For production patch weeks (week 1 and 2), all days of the week are available.
 
-**Time Block:
-**
+**Time Block:**
 Choose the time window for when the patching should occur. Time blocks range from late night (12:01 AM) to late evening (11:59 PM).
 
-**Application Name:
-**
+**Application Name:**
 Enter the application name (e.g., NAW) for better identification of the patching tag.
 
 ---
 
 # Understanding the Patch Week Selection
-Week 0: This is the week of the 2nd Tuesday of the month (for testing/dev purposes).
+  - Week 0: This is the week of the 2nd Tuesday of the month (for testing/dev purposes).
 
 Week 1: This is the production patch week, immediately after the 2nd Tuesday.
 
