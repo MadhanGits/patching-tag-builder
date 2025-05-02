@@ -4,12 +4,10 @@ A simple, elegant web tool to dynamically generate standardized patching tags an
 This tool helps you generate a patching schedule tag that specifies the method, type, week, day, and time block for SQL Server patching. It also allows you to provide the application name to specify which application the tag corresponds to.
 
 # How to Use
-**Patch Method:
-**
+**Patch Method:**
 Select AU for Automatic Update (this is the default method).
 
-**Patch Type:
-**
+**Patch Type:**
 Select SQL (this is the patch type we are applying).
 
 **Patch Week:
