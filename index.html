@@ -4,42 +4,81 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SQL Patching Tag Builder</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Inter', sans-serif;
       padding: 2rem;
       background: #f4f4f4;
     }
+
     .container {
       background: white;
       padding: 2rem;
-      border-radius: 10px;
-      max-width: 600px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      max-width: 700px;
+      margin: 2rem auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
     }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
     label {
       display: block;
-      margin-top: 1rem;
-      font-weight: bold;
+      margin-top: 1.2rem;
+      margin-bottom: 0.3rem;
+      font-weight: 600;
     }
+
     select, input {
       width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-      border-radius: 5px;
+      padding: 0.6rem;
+      border-radius: 6px;
       border: 1px solid #ccc;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
-    .output {
-      margin-top: 2rem;
-      font-size: 1.2rem;
-      font-weight: bold;
+
+    select:focus, input:focus {
+      border-color: #4a90e2;
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+      outline: none;
+    }
+
+    .output, .description {
+      margin-top: 1.5rem;
+      background: #f0f8ff;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #4a90e2;
       color: #333;
-      text-align: center;
+    }
+
+    #copyButton {
+      display: block;
+      margin: 1rem auto 0;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+
+    #copyButton:hover {
+      background-color: #357ABD;
     }
   </style>
 </head>
 <body>
+
 <div class="container">
   <h2>SQL Patching Tag Builder</h2>
 
@@ -61,66 +100,68 @@
   </select>
 
   <label for="maintenanceDay">Maintenance Day</label>
-  <select id="maintenanceDay"></select>
+  <select id="maintenanceDay">
+    <!-- JS will populate this -->
+  </select>
 
   <label for="timeBlock">Time Block</label>
   <select id="timeBlock">
-    <option value="0001-0400">0001-0400</option>
-    <option value="0401-0800">0401-0800</option>
-    <option value="0801-1159">0801-1159</option>
-    <option value="1201-1600">1201-1600</option>
-    <option value="1601-2000">1601-2000</option>
-    <option value="2001-2359">2001-2359</option>
+    <option value="0001-0400">0001-0400 (12:01 AM - 4:00 AM)</option>
+    <option value="0401-0800">0401-0800 (4:01 AM - 8:00 AM)</option>
+    <option value="0801-1159">0801-1159 (8:01 AM - 11:59 AM)</option>
+    <option value="1201-1600">1201-1600 (12:01 PM - 4:00 PM)</option>
+    <option value="1601-2000">1601-2000 (4:01 PM - 8:00 PM)</option>
+    <option value="2001-2359">2001-2359 (8:01 PM - 11:59 PM)</option>
   </select>
 
-  <label for="appFamily">App Family (optional)</label>
-  <input type="text" id="appFamily" maxlength="5" placeholder="e.g., NAW"/>
+  <label for="appname">Application Name</label>
+  <input type="text" id="appname" maxlength="5" placeholder="e.g., NAW">
 
   <div class="output" id="tagValue">Your tag will appear here...</div>
+  <div class="description" id="plainEnglish">Your description will appear here...</div>
+  <button id="copyButton">Copy Tag</button>
 </div>
 
 <script>
-  const maintenanceDayOptions = [
-    { value: 'MO', label: 'Monday' },
-    { value: 'TU', label: 'Tuesday' },
-    { value: 'WE', label: 'Wednesday' },
-    { value: 'TH', label: 'Thursday' },
-    { value: 'FR', label: 'Friday' },
-    { value: 'SA', label: 'Saturday' },
-    { value: 'SU', label: 'Sunday' }
-  ];
-
-  function populateMaintenanceDays(disableCertainDays) {
-  const maintenanceDay = document.getElementById('maintenanceDay');
-  const previousValue = maintenanceDay.value;
-  maintenanceDay.innerHTML = ''; // Clear current options
-
-  const days = [
-    { value: 'MO', label: 'Monday' },
-    { value: 'TU', label: 'Tuesday' },
-    { value: 'WE', label: 'Wednesday' },
-    { value: 'TH', label: 'Thursday' },
-    { value: 'FR', label: 'Friday' },
-    { value: 'SA', label: 'Saturday' },
-    { value: 'SU', label: 'Sunday' }
-  ];
-
-  const allowedDays = disableCertainDays
-    ? days.filter(d => d.value !== 'MO' && d.value !== 'TU') // ⛔ Exclude MO and TU
-    : days;
-
-  allowedDays.forEach(d => {
-    const option = document.createElement('option');
-    option.value = d.value;
-    option.textContent = d.label;
-    maintenanceDay.appendChild(option);
+  const elements = ['patchMethod', 'patchType', 'patchWeek', 'maintenanceDay', 'timeBlock', 'appname'];
+  elements.forEach(id => document.getElementById(id).addEventListener('input', updateTag));
+  document.getElementById('patchWeek').addEventListener('input', () => {
+    const week = document.getElementById('patchWeek').value;
+    const isDevTestWeek = week === '0';
+    populateMaintenanceDays(isDevTestWeek);
+    updateTag();
   });
 
-  // Try to preserve previously selected value if still valid
-  if (allowedDays.some(d => d.value === previousValue)) {
-    maintenanceDay.value = previousValue;
+  function populateMaintenanceDays(disableCertainDays) {
+    const maintenanceDay = document.getElementById('maintenanceDay');
+    const previousValue = maintenanceDay.value;
+    maintenanceDay.innerHTML = '';
+
+    const days = [
+      { value: 'MO', label: 'Monday' },
+      { value: 'TU', label: 'Tuesday' },
+      { value: 'WE', label: 'Wednesday' },
+      { value: 'TH', label: 'Thursday' },
+      { value: 'FR', label: 'Friday' },
+      { value: 'SA', label: 'Saturday' },
+      { value: 'SU', label: 'Sunday' }
+    ];
+
+    const allowedDays = disableCertainDays
+      ? days.filter(d => d.value !== 'MO' && d.value !== 'TU')
+      : days;
+
+    allowedDays.forEach(d => {
+      const option = document.createElement('option');
+      option.value = d.value;
+      option.textContent = d.label;
+      maintenanceDay.appendChild(option);
+    });
+
+    if (allowedDays.some(d => d.value === previousValue)) {
+      maintenanceDay.value = previousValue;
+    }
   }
-}
 
   function updateTag() {
     const method = document.getElementById('patchMethod').value;
@@ -128,28 +169,58 @@
     const week = document.getElementById('patchWeek').value;
     const day = document.getElementById('maintenanceDay').value;
     const block = document.getElementById('timeBlock').value;
-    const app = document.getElementById('appFamily').value.trim();
+    const app = document.getElementById('appname').value.trim();
 
     const tag = app
       ? `<< ${method}-${type}-${week}-${day}-${block}-${app} >>`
       : `<< ${method}-${type}-${week}-${day}-${block} >>`;
+
     document.getElementById('tagValue').textContent = tag;
+
+    const weekMap = {
+      '0': 'during the week of the 2nd Tuesday of the month (for Dev/Test)',
+      '1': 'in the 1st production week after the 2nd Tuesday (Days 0–6)',
+      '2': 'in the 2nd production week after the 2nd Tuesday (Days 7–12)'
+    };
+
+    const dayMap = {
+      'MO': 'Monday',
+      'TU': 'Tuesday',
+      'WE': 'Wednesday',
+      'TH': 'Thursday',
+      'FR': 'Friday',
+      'SA': 'Saturday',
+      'SU': 'Sunday'
+    };
+
+    const timeMap = {
+      '0001-0400': '12:01 AM to 4:00 AM',
+      '0401-0800': '4:01 AM to 8:00 AM',
+      '0801-1159': '8:01 AM to 11:59 AM',
+      '1201-1600': '12:01 PM to 4:00 PM',
+      '1601-2000': '4:01 PM to 8:00 PM',
+      '2001-2359': '8:01 PM to 11:59 PM'
+    };
+
+    let sentence = `Automatic patching for SQL will be scheduled ${weekMap[week]}, on ${dayMap[day]}, between ${timeMap[block]}`;
+    if (app) {
+      sentence += `, for application ${app}`;
+    }
+    sentence += `.`
+
+    document.getElementById('plainEnglish').textContent = sentence;
   }
 
-  // Event listeners
-  const elements = ['patchMethod', 'patchType', 'patchWeek', 'maintenanceDay', 'timeBlock', 'appFamily'];
-  elements.forEach(id => document.getElementById(id).addEventListener('input', updateTag));
-
-  document.getElementById('patchWeek').addEventListener('change', function () {
-    const isDevTestWeek = this.value === '0';
-    populateMaintenanceDays(isDevTestWeek);
-    updateTag();
+  document.getElementById('copyButton').addEventListener('click', function() {
+    const tag = document.getElementById('tagValue').textContent;
+    navigator.clipboard.writeText(tag);
+    alert("Tag copied to clipboard!");
   });
 
-  // Initial load - check the current patchWeek selection
-const initialPatchWeek = document.getElementById('patchWeek').value;
-const isDevTestWeek = initialPatchWeek === '0';
-populateMaintenanceDays(isDevTestWeek);
+  // On load
+  populateMaintenanceDays(document.getElementById('patchWeek').value === '0');
+  updateTag();
 </script>
+
 </body>
 </html>
