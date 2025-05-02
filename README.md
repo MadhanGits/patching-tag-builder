@@ -48,7 +48,7 @@ Or simply open `index.html` in your browser.
 ```
 
 **Description:**  
-Automatic patching for SQL will be scheduled during the week of the 2nd Tuesday of the month (for Dev/Test), on Wednesday, between 12:01 AM to 4:00 AM.
+Automatic patching for SQL will be scheduled during the week of the 2nd Tuesday of the month (for Dev/Test), on Wednesday, between 12:01 AM to 4:00 A, for application MSFT.
 
 ---
 
