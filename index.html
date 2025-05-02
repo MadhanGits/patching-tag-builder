@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SQL Patching Tag Submission</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SQL Patching Tag Builder</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -14,24 +14,142 @@
       background: white;
       padding: 2rem;
       border-radius: 10px;
-      max-width: 800px;
+      max-width: 600px;
       margin: auto;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    iframe {
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    select, input {
       width: 100%;
-      height: 1000px;
-      border: none;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .output {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>SQL Patching Tag Submission</h2>
-    
-    <!-- Replace this with your actual Google Form embed -->
-    <iframe src="https://docs.google.com/forms/d/e/YOUR_FORM_ID/viewform?embedded=true" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
-    
-  </div>
+<div class="container">
+  <h2>SQL Patching Tag Builder</h2>
+
+  <label for="patchMethod">Patch Method</label>
+  <select id="patchMethod">
+    <option value="AU">AU - Automatic Update</option>
+  </select>
+
+  <label for="patchType">Patch Type</label>
+  <select id="patchType">
+    <option value="SQL">SQL</option>
+  </select>
+
+  <label for="patchWeek">Patch Week</label>
+  <select id="patchWeek">
+    <option value="0">0 - 2nd Tuesday Week of Every month (Dev/Test)</option>
+    <option value="1">1 - 1st Prod Week After 2nd Tuesday Day 0-6 (Default)</option>
+    <option value="2">2 - 2nd Prod Week After 2nd Tuesday Day 7-12</option>
+  </select>
+
+  <label for="maintenanceDay">Maintenance Day</label>
+  <select id="maintenanceDay"></select>
+
+  <label for="timeBlock">Time Block</label>
+  <select id="timeBlock">
+    <option value="0001-0400">0001-0400</option>
+    <option value="0401-0800">0401-0800</option>
+    <option value="0801-1159">0801-1159</option>
+    <option value="1201-1600">1201-1600</option>
+    <option value="1601-2000">1601-2000</option>
+    <option value="2001-2359">2001-2359</option>
+  </select>
+
+  <label for="appFamily">App Family (optional)</label>
+  <input type="text" id="appFamily" maxlength="5" placeholder="e.g., HOJ"/>
+
+  <div class="output" id="tagValue">Your tag will appear here...</div>
+</div>
+
+<script>
+  const maintenanceDayOptions = [
+    { value: 'MO', label: 'Monday' },
+    { value: 'TU', label: 'Tuesday' },
+    { value: 'WE', label: 'Wednesday' },
+    { value: 'TH', label: 'Thursday' },
+    { value: 'FR', label: 'Friday' },
+    { value: 'SA', label: 'Saturday' },
+    { value: 'SU', label: 'Sunday' }
+  ];
+
+  function populateMaintenanceDays(disableCertainDays) {
+  const maintenanceDay = document.getElementById('maintenanceDay');
+  const previousValue = maintenanceDay.value;
+  maintenanceDay.innerHTML = ''; // Clear current options
+
+  const days = [
+    { value: 'MO', label: 'Monday' },
+    { value: 'TU', label: 'Tuesday' },
+    { value: 'WE', label: 'Wednesday' },
+    { value: 'TH', label: 'Thursday' },
+    { value: 'FR', label: 'Friday' },
+    { value: 'SA', label: 'Saturday' },
+    { value: 'SU', label: 'Sunday' }
+  ];
+
+  const allowedDays = disableCertainDays
+    ? days.filter(d => d.value !== 'MO' && d.value !== 'TU') // ⛔ Exclude MO and TU
+    : days;
+
+  allowedDays.forEach(d => {
+    const option = document.createElement('option');
+    option.value = d.value;
+    option.textContent = d.label;
+    maintenanceDay.appendChild(option);
+  });
+
+  // Try to preserve previously selected value if still valid
+  if (allowedDays.some(d => d.value === previousValue)) {
+    maintenanceDay.value = previousValue;
+  }
+}
+
+  function updateTag() {
+    const method = document.getElementById('patchMethod').value;
+    const type = document.getElementById('patchType').value;
+    const week = document.getElementById('patchWeek').value;
+    const day = document.getElementById('maintenanceDay').value;
+    const block = document.getElementById('timeBlock').value;
+    const app = document.getElementById('appFamily').value.trim();
+
+    const tag = app
+      ? `<< ${method}-${type}-${week}-${day}-${block}-${app} >>`
+      : `<< ${method}-${type}-${week}-${day}-${block} >>`;
+    document.getElementById('tagValue').textContent = tag;
+  }
+
+  // Event listeners
+  const elements = ['patchMethod', 'patchType', 'patchWeek', 'maintenanceDay', 'timeBlock', 'appFamily'];
+  elements.forEach(id => document.getElementById(id).addEventListener('input', updateTag));
+
+  document.getElementById('patchWeek').addEventListener('change', function () {
+    const isDevTestWeek = this.value === '0';
+    populateMaintenanceDays(isDevTestWeek);
+    updateTag();
+  });
+
+  // Initial load - check the current patchWeek selection
+const initialPatchWeek = document.getElementById('patchWeek').value;
+const isDevTestWeek = initialPatchWeek === '0';
+populateMaintenanceDays(isDevTestWeek);
+</script>
 </body>
 </html>
