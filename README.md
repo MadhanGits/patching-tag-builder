@@ -44,11 +44,11 @@ Or simply open `index.html` in your browser.
 ## 📋 Example Tag
 
 ```
-<< AU-SQL-1-WE-1201-1600-HIS >>
+<< AU-SQL-1-WE-1201-1600-MSFT >>
 ```
 
 **Description:**  
-Automatic patching for SQL will be scheduled in the 1st production week after the 2nd Tuesday (Days 0–6), on Wednesday, between 12:01 PM to 4:00 PM, for application `HIS`.
+Automatic patching for SQL will be scheduled during the week of the 2nd Tuesday of the month (for Dev/Test), on Wednesday, between 12:01 AM to 4:00 AM.
 
 ---
 
